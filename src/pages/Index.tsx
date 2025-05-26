@@ -3,7 +3,10 @@ import React, { useState } from 'react';
 import Header from '../components/Header';
 import ScanningFrame from '../components/ScanningFrame';
 import ProductCard from '../components/ProductCard';
+import ProductInfoCard from '../components/ProductInfoCard';
+import AddProductForm from '../components/AddProductForm';
 import CameraScanner from '../components/CameraScanner';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 interface ScannedProduct {
   barcode: string;
@@ -13,24 +16,77 @@ interface ScannedProduct {
   lastScanned: string;
 }
 
+interface ProductInfo {
+  product_name: string;
+  gtin: string;
+  batch_lot_number: string;
+  expiry_date: Date;
+  serial_number: string;
+  barcode: string;
+  location: string;
+  quantity: number;
+  manufacturer: string;
+}
+
 const Index = () => {
   const [isScanning, setIsScanning] = useState(false);
   const [scannedProduct, setScannedProduct] = useState<ScannedProduct | null>(null);
+  const [productInfo, setProductInfo] = useState<ProductInfo | null>(null);
+  const [showAddProduct, setShowAddProduct] = useState(false);
 
   const handleScanResult = (barcode: string) => {
     console.log('Scanned barcode:', barcode);
     
-    // Mock product data - in a real app, this would fetch from an API
-    const mockProduct: ScannedProduct = {
-      barcode,
-      name: getProductName(barcode),
-      description: getProductDescription(barcode),
-      status: 'In Stock',
-      lastScanned: 'Just now'
+    // Check if we have detailed product info for this barcode
+    const detailedProduct = getDetailedProductInfo(barcode);
+    
+    if (detailedProduct) {
+      setProductInfo(detailedProduct);
+      setScannedProduct(null);
+    } else {
+      // Fall back to basic product data
+      const mockProduct: ScannedProduct = {
+        barcode,
+        name: getProductName(barcode),
+        description: getProductDescription(barcode),
+        status: 'In Stock',
+        lastScanned: 'Just now'
+      };
+      setScannedProduct(mockProduct);
+      setProductInfo(null);
+    }
+    
+    setIsScanning(false);
+  };
+
+  const getDetailedProductInfo = (barcode: string): ProductInfo | null => {
+    // Mock detailed product database - in real app, this would be an API call
+    const detailedProducts: Record<string, ProductInfo> = {
+      '8901030789123': {
+        product_name: 'Digital Glucometer Pro',
+        gtin: '8901030789123',
+        batch_lot_number: 'GLU2024001',
+        expiry_date: new Date('2025-12-31'),
+        serial_number: 'DGP240001',
+        barcode: '8901030789123',
+        location: 'Warehouse A - Shelf B2',
+        quantity: 25,
+        manufacturer: 'MedTech Solutions'
+      },
+      '1234567890123': {
+        product_name: 'Digital Thermometer Advanced',
+        gtin: '1234567890123',
+        batch_lot_number: 'THM2024002',
+        expiry_date: new Date('2026-06-15'),
+        serial_number: 'DTA240002',
+        barcode: '1234567890123',
+        location: 'Warehouse B - Shelf A1',
+        quantity: 15,
+        manufacturer: 'HealthCare Instruments'
+      }
     };
     
-    setScannedProduct(mockProduct);
-    setIsScanning(false);
+    return detailedProducts[barcode] || null;
   };
 
   const getProductName = (barcode: string): string => {
@@ -55,6 +111,33 @@ const Index = () => {
   const handleStartScan = () => {
     setIsScanning(true);
     setScannedProduct(null);
+    setProductInfo(null);
+  };
+
+  const handleAddProduct = () => {
+    setShowAddProduct(true);
+  };
+
+  const handleAddProductSubmit = (productData: any) => {
+    console.log('New product added:', productData);
+    // Here you would typically save to a database
+    setShowAddProduct(false);
+    // You could show a success message here
+  };
+
+  const handleAddProductCancel = () => {
+    setShowAddProduct(false);
+  };
+
+  const handleRescan = () => {
+    setIsScanning(true);
+    setScannedProduct(null);
+    setProductInfo(null);
+  };
+
+  const handleClearProduct = () => {
+    setScannedProduct(null);
+    setProductInfo(null);
   };
 
   return (
@@ -81,15 +164,25 @@ const Index = () => {
       
       {/* Content overlay */}
       <div className="relative z-10 min-h-screen flex flex-col">
-        <Header />
+        <Header onAddProduct={handleAddProduct} />
         
         {/* Main scanning area */}
         <div className="flex-1 flex items-center justify-center px-4 py-8">
           <ScanningFrame isScanning={isScanning} />
         </div>
         
-        {/* Bottom card panel - show only if we have scanned data */}
-        {scannedProduct && (
+        {/* Bottom card panel - show detailed product info if available, otherwise basic card */}
+        {productInfo && (
+          <div className="mt-auto p-4">
+            <ProductInfoCard 
+              product={productInfo} 
+              onRescan={handleRescan}
+              onClear={handleClearProduct}
+            />
+          </div>
+        )}
+        
+        {scannedProduct && !productInfo && (
           <div className="mt-auto">
             <ProductCard product={scannedProduct} />
           </div>
@@ -110,6 +203,16 @@ const Index = () => {
           </button>
         </div>
       </div>
+      
+      {/* Add Product Dialog */}
+      <Dialog open={showAddProduct} onOpenChange={setShowAddProduct}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <AddProductForm 
+            onSubmit={handleAddProductSubmit}
+            onCancel={handleAddProductCancel}
+          />
+        </DialogContent>
+      </Dialog>
       
       {/* Ambient light effects */}
       <div className="absolute top-20 left-10 w-32 h-32 bg-blue-500/20 rounded-full blur-3xl"></div>
