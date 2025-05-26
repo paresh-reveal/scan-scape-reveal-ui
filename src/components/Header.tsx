@@ -22,6 +22,10 @@ const Header: React.FC<HeaderProps> = ({ onAddProduct }) => {
     navigate('/scan-history');
   };
 
+  const handleAddProduct = () => {
+    navigate('/add-product');
+  };
+
   return (
     <div className="flex items-center justify-between p-4 pt-12">
       <div className="flex items-center space-x-3">
@@ -50,7 +54,7 @@ const Header: React.FC<HeaderProps> = ({ onAddProduct }) => {
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56 bg-white/95 backdrop-blur-sm border border-white/20" align="end">
             <DropdownMenuItem 
-              onClick={onAddProduct}
+              onClick={handleAddProduct}
               className="flex items-center gap-2 cursor-pointer"
             >
               <Plus className="w-4 h-4" />

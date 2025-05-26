@@ -1,12 +1,9 @@
-
 import React, { useState } from 'react';
 import Header from '../components/Header';
 import ScanningFrame from '../components/ScanningFrame';
 import ProductCard from '../components/ProductCard';
 import ProductInfoCard from '../components/ProductInfoCard';
-import AddProductForm from '../components/AddProductForm';
 import CameraScanner from '../components/CameraScanner';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 interface ScannedProduct {
   barcode: string;
@@ -32,7 +29,6 @@ const Index = () => {
   const [isScanning, setIsScanning] = useState(false);
   const [scannedProduct, setScannedProduct] = useState<ScannedProduct | null>(null);
   const [productInfo, setProductInfo] = useState<ProductInfo | null>(null);
-  const [showAddProduct, setShowAddProduct] = useState(false);
 
   const handleScanResult = (barcode: string) => {
     console.log('Scanned barcode:', barcode);
@@ -114,21 +110,6 @@ const Index = () => {
     setProductInfo(null);
   };
 
-  const handleAddProduct = () => {
-    setShowAddProduct(true);
-  };
-
-  const handleAddProductSubmit = (productData: any) => {
-    console.log('New product added:', productData);
-    // Here you would typically save to a database
-    setShowAddProduct(false);
-    // You could show a success message here
-  };
-
-  const handleAddProductCancel = () => {
-    setShowAddProduct(false);
-  };
-
   const handleRescan = () => {
     setIsScanning(true);
     setScannedProduct(null);
@@ -164,7 +145,7 @@ const Index = () => {
       
       {/* Content overlay */}
       <div className="relative z-10 min-h-screen flex flex-col">
-        <Header onAddProduct={handleAddProduct} />
+        <Header />
         
         {/* Main scanning area */}
         <div className="flex-1 flex items-center justify-center px-4 py-8">
@@ -203,16 +184,6 @@ const Index = () => {
           </button>
         </div>
       </div>
-      
-      {/* Add Product Dialog */}
-      <Dialog open={showAddProduct} onOpenChange={setShowAddProduct}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <AddProductForm 
-            onSubmit={handleAddProductSubmit}
-            onCancel={handleAddProductCancel}
-          />
-        </DialogContent>
-      </Dialog>
       
       {/* Ambient light effects */}
       <div className="absolute top-20 left-10 w-32 h-32 bg-blue-500/20 rounded-full blur-3xl"></div>
