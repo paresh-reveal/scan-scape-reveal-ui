@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Settings, History, Barcode, Plus, User, LogOut } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,6 +16,12 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ onAddProduct }) => {
+  const navigate = useNavigate();
+
+  const handleScanHistory = () => {
+    navigate('/scan-history');
+  };
+
   return (
     <div className="flex items-center justify-between p-4 pt-12">
       <div className="flex items-center space-x-3">
@@ -28,7 +35,10 @@ const Header: React.FC<HeaderProps> = ({ onAddProduct }) => {
       </div>
       
       <div className="flex items-center space-x-3">
-        <button className="glass-effect p-3 rounded-xl">
+        <button 
+          onClick={handleScanHistory}
+          className="glass-effect p-3 rounded-xl"
+        >
           <History className="w-5 h-5 text-white" />
         </button>
         
@@ -51,7 +61,10 @@ const Header: React.FC<HeaderProps> = ({ onAddProduct }) => {
               Profile
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
+            <DropdownMenuItem 
+              onClick={handleScanHistory}
+              className="flex items-center gap-2 cursor-pointer"
+            >
               <History className="w-4 h-4" />
               Scan History
             </DropdownMenuItem>
